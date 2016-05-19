@@ -1,4 +1,4 @@
 Como compilar un programa en asm
 
 1. nasm -f elf32 <Program.asm>
-2. ld -m elf32 <Program.o> -o <Ejecutable>
+2. ld -m elf_i386 <Program.o> -o <Ejecutable>
