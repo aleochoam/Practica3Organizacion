@@ -1,5 +1,5 @@
 Programa que escribe archivos
 
-hht:s//stackoverflow.com/questions
+http://stackoverflow.com/questions/26951493/are-there-any-examples-of-programs-that-generate-text-text-files-as-output-in-na
 
 lo tiene felipe
