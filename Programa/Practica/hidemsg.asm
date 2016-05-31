@@ -9,7 +9,7 @@ section .data
     fin_len equ $-fin
 
     error_message: db "Se ha producido un error"
-    error_message_length: equ $ - error_message
+    error_message_length: equ $-error_message
 
     fds dd 0            ;File descriptor de salida
 
@@ -20,6 +20,7 @@ section .bss
     nombreArchivoE  resw 2
     nombreArchivoS resw 2
 
+    buffer: resb 5242880
 
 section .text
     global _start
@@ -83,8 +84,20 @@ _start:
 
 _abrir_archivo_de_entrada:
     mov eax,5
-    mov ebx,[nombreArchivoE]
+    mov ebx,nombreArchivoE
     mov ecx,2
+    int 80h
+
+_leer_archivo_de_entrada:
+    mov ebx,eax
+    mov eax, 3
+    mov ecx,buffer
+    int 80h
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, buffer
+    mov edx, len
     int 80h
 
 
