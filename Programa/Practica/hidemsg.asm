@@ -10,11 +10,10 @@ section .data
 
     fds dd 0            ;File descriptor de salida
 
-    nombreArchivoS db "Salida.txt"
 section .bss
     msg             resw 2
     nombreArchivoE  resw 2
-    ;nombreArchivoS resw 2
+    nombreArchivoS resw 2
 
     msg_len         resw 2
 
@@ -74,11 +73,11 @@ _start:
     pop ebx           ;Aca esta el -o (puede que no sea asi)
 
     pop ebx
-    ;mov [nombreArchivoS], ebx
+    mov [nombreArchivoS], ebx
 
 _crear_archivo_salida:
     mov eax, 8
-    mov ebx, nombreArchivoS
+    mov ebx, [nombreArchivoS]
     mov ecx, 644O
     int 80h
 
@@ -104,19 +103,21 @@ _crear_archivo_salida:
     cmp eax, -1
     je _error
 
+
+    mov edi, msg
+    call _strlen
+    mov [msg_len], eax
+
+    mov eax, 4
+    mov ebx, [fds]
+    mov ecx, [msg]
+    mov edx, [msg_len]
+
+    int 80h
+
+_cerrar_Archivo:
     mov eax, 6
     mov ebx, [fds]
     int 80h
-
-    ;mov edi, msg
-    ;call _strlen
-    ;mov [msg_len], eax
-
-    ;mov eax, 4
-    ;mov ebx, [fds]
-    ;mov ecx, [msg]
-    ;mov edx, [msg_len]
-
-    ;int 80h
 
     jmp _exit

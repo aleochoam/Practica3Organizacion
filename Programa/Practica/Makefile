@@ -5,4 +5,4 @@ hidemsg.o: hidemsg.asm
 clean:
 	rm -f *.o
 	rm -f hidemsg
-	rm -f Salida.txt
+	rm -f *.txt
