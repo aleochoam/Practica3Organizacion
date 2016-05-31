@@ -81,6 +81,13 @@ _start:
     pop ebx
     mov [nombreArchivoS], ebx
 
+_abrir_archivo_de_entrada:
+    mov eax,5
+    mov ebx,[nombreArchivoE]
+    mov ecx,2
+    int 80h
+
+
 _crear_archivo_salida:
     mov eax, 8
     mov ebx, [nombreArchivoS]
@@ -109,7 +116,7 @@ _crear_archivo_salida:
     cmp eax, -1
     je _error
 
-
+_agregar_el_mensaje:
     mov edi, [msg]
     call _strlen
     mov [msg_len], eax
