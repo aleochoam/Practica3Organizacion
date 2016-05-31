@@ -1,9 +1,12 @@
 section .data
-    header   db  "P6",10,0
+    header   db  "P6",10
     len_hed  equ $-header
 
-    header2  db  "255",10,0
+    header2  db  "255",10
     len_hed2 equ $-header2
+
+    fin     db 10
+    fin_len equ $-fin
 
     error_message: db "Se ha producido un error"
     error_message_length: equ $ - error_message
@@ -11,17 +14,20 @@ section .data
     fds dd 0            ;File descriptor de salida
 
 section .bss
-    msg             resw 2
+    msg             resb 1024
+    msg_len         resb 28
+
     nombreArchivoE  resw 2
     nombreArchivoS resw 2
 
-    msg_len         resw 2
 
 section .text
     global _start
 
-_strlen:               ; Metodo para calcular la longitud de un string
-                       ; Sacado de http://tuttlem.github.io/2013/01/08/strlen-implementation-in-nasm.html
+;Sacado de http://tuttlem.github.io/2013/01/08/strlen-implementation-in-nasm.html
+;Metodo para calcular la longitud de un string
+
+_strlen:
 
   push  ecx            ; save and clear out counter
   xor   ecx, ecx
@@ -37,9 +43,9 @@ _strlen_next:
 
 _strlen_null:
 
-  mov   eax, ecx       ; rcx = the length (put in rax)
+  mov   eax, ecx       ; ecx = the length (put in eax)
 
-  pop   ecx            ; restore rcx
+  pop   ecx            ; restore ecx
   ret                  ; get out
 
 _exit:
@@ -104,7 +110,7 @@ _crear_archivo_salida:
     je _error
 
 
-    mov edi, msg
+    mov edi, [msg]
     call _strlen
     mov [msg_len], eax
 
@@ -116,6 +122,12 @@ _crear_archivo_salida:
     int 80h
 
 _cerrar_Archivo:
+    mov eax, 4
+    mov ebx, [fds]
+    mov ecx, fin
+    mov edx, fin_len
+    int 80h
+
     mov eax, 6
     mov ebx, [fds]
     int 80h
