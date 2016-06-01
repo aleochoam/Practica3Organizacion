@@ -84,7 +84,7 @@ _start:
 
 _abrir_archivo_de_entrada:
     mov eax,5
-    mov ebx,nombreArchivoE
+    mov ebx,[nombreArchivoE]
     mov ecx,2
     int 80h
 
@@ -94,11 +94,11 @@ _leer_archivo_de_entrada:
     mov ecx,buffer
     int 80h
 
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, buffer
-    mov edx, len
-    int 80h
+;    mov eax, 4
+;    mov ebx, 1
+;    mov ecx, buffer
+;    mov edx, len
+;    int 80h
 
 
 _crear_archivo_salida:
