@@ -1,22 +1,22 @@
-struc STAT       
-    .st_dev:        resd 1      
-    .st_ino:        resd 1   
-    .st_mode:       resw 1   
-    .st_nlink:      resw 1   
-    .st_uid:        resw 1   
-    .st_gid:        resw 1   
-    .st_rdev:       resd 1       
-    .st_size:       resd 1   
-    .st_blksize:    resd 1   
-    .st_blocks:     resd 1   
-    .st_atime:      resd 1   
-    .st_atime_nsec: resd 1   
-    .st_mtime:      resd 1   
+struc STAT
+    .st_dev:        resd 1
+    .st_ino:        resd 1
+    .st_mode:       resw 1
+    .st_nlink:      resw 1
+    .st_uid:        resw 1
+    .st_gid:        resw 1
+    .st_rdev:       resd 1
+    .st_size:       resd 1
+    .st_blksize:    resd 1
+    .st_blocks:     resd 1
+    .st_atime:      resd 1
+    .st_atime_nsec: resd 1
+    .st_mtime:      resd 1
     .st_mtime_nsec: resd 1
-    .st_ctime:      resd 1   
-    .st_ctime_nsec: resd 1   
-    .unused4:       resd 1   
-    .unused5:       resd 1  
+    .st_ctime:      resd 1
+    .st_ctime_nsec: resd 1
+    .unused4:       resd 1
+    .unused5:       resd 1
 endstruc
 
 %define sizeof(x) x %+ _size
@@ -28,9 +28,7 @@ section .data
 
     header2  db  "255",10
     len_hed2 equ $-header2
-	
-    szFile   db  "TEST", 0
-    File_Len equ $-szFile
+
 
     fin     db 10
     fin_len equ $-fin
@@ -39,20 +37,19 @@ section .data
     error_message_length: equ $-error_message
 
     fds dd 0            ;File descriptor de salida
-    len_buffer equ 5242880
     fde dd 0
 
 section .bss
     msg             resb 1024
     msg_len         resb 28
-    stat            resb sizeof(STAT)
 
-    Org_Break 	    resd 1
+    stat            resb sizeof(STAT)
 
     nombreArchivoE  resw 2
     nombreArchivoS  resw 2
 
     buffer:         resb 5242880
+    len_buffer      resb 1024
 
 section .text
     global _start
@@ -116,44 +113,41 @@ _start:
 
 
 ;_obtener_tamano_archivo:
-;    mov ebx, szFile
-  
+    mov eax, 106
+    mov ebx, nombreArchivoE
+    mov ecx, stat
+    int 80h
+
+    mov eax, dword [stat + STAT.st_size]
+    mov [len_buffer], eax
 
 _abrir_archivo_de_entrada:
     mov eax,5
-    mov ebx,nombreArchivoE
-    mov ecx,2
+    mov ebx, [nombreArchivoE]
+    mov ecx,0
     int 80h
-    test eax,eax
-    jns _error
     mov [fde], eax
 
    ; xchg eax,esi ; esi ---> eax y eax--->esi
 
 _leer_archivo_de_entrada:
-    mov ebx,[fde]
     mov eax, 3
+    mov ebx,[fde]
     mov ecx,buffer
     mov edx, len_buffer
     int 80h
     js _error
 
-;    mov ebx, 1
-;    mov ecx, buffer
-;    mov edx, len_buffer
-;    mov eax, 4
-;    int 80h
-
-_cerrar_archivo_de_entrada:
-    mov ebx,[fde] 
-    mov eax, 6
+    mov ebx, 1
+    mov ecx, buffer
+    mov edx, len_buffer
+    mov eax, 4
     int 80h
 
-    ;mov ebx, [Org_Break]
-    ;mov eax, 45
-    ;int 80h
-    jmp _exit
-
+_cerrar_archivo_de_entrada:
+    mov ebx,[fde]
+    mov eax, 6
+    int 80h
 
 _crear_archivo_salida:
     mov eax, 8
