@@ -12,6 +12,7 @@ section .data
     error_message_length: equ $-error_message
 
     fds dd 0            ;File descriptor de salida
+    len_buffer equ 5242880
 
 section .bss
     msg             resb 1024
@@ -84,21 +85,29 @@ _start:
 
 _abrir_archivo_de_entrada:
     mov eax,5
-    mov ebx,[nombreArchivoE]
-    mov ecx,2
+    mov ebx,nombreArchivoE
+    mov ecx,0
     int 80h
+    xchg eax,esi ; esi ---> eax y eax--->esi
 
 _leer_archivo_de_entrada:
-    mov ebx,eax
+    mov ebx,esi
     mov eax, 3
-    mov ecx,buffer
+    mov ecx,[buffer]
+    mov edx, len_buffer ;En teoria aqui va aritmetica de punteros
     int 80h
 
-;    mov eax, 4
 ;    mov ebx, 1
-;    mov ecx, buffer
-;    mov edx, len
+;    mov ecx, [buffer]
+;    mov edx, eax
+;    mov eax, 4
 ;    int 80h
+
+_cerrar_archivo_de_entrada:
+    mov ebx, esi
+    mov eax, 6
+    int 80h
+    ;jmp _exit
 
 
 _crear_archivo_salida:
