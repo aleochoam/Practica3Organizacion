@@ -128,8 +128,6 @@ _abrir_archivo_de_entrada:
     int 80h
     mov [fde], eax
 
-   ; xchg eax,esi ; esi ---> eax y eax--->esi
-
 _leer_archivo_de_entrada:
     mov eax, 3
     mov ebx,[fde]
@@ -138,11 +136,11 @@ _leer_archivo_de_entrada:
     int 80h
     js _error
 
-    mov ebx, 1
-    mov ecx, buffer
-    mov edx, len_buffer
-    mov eax, 4
-    int 80h
+;    mov ebx, 1
+;    mov ecx, buffer
+;    mov edx, len_buffer
+;    mov eax, 4
+;    int 80h
 
 _cerrar_archivo_de_entrada:
     mov ebx,[fde]
@@ -186,8 +184,15 @@ _agregar_el_mensaje:
     mov ebx, [fds]
     mov ecx, [msg]
     mov edx, [msg_len]
-
     int 80h
+    
+    mov ebx, [fds]
+    mov ecx, buffer
+    mov edx, len_buffer
+    mov eax, 4
+    int 80h
+
+
 
 _cerrar_Archivo:
     mov eax, 4
