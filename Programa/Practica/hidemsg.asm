@@ -1,27 +1,58 @@
+struc STAT       
+    .st_dev:        resd 1      
+    .st_ino:        resd 1   
+    .st_mode:       resw 1   
+    .st_nlink:      resw 1   
+    .st_uid:        resw 1   
+    .st_gid:        resw 1   
+    .st_rdev:       resd 1       
+    .st_size:       resd 1   
+    .st_blksize:    resd 1   
+    .st_blocks:     resd 1   
+    .st_atime:      resd 1   
+    .st_atime_nsec: resd 1   
+    .st_mtime:      resd 1   
+    .st_mtime_nsec: resd 1
+    .st_ctime:      resd 1   
+    .st_ctime_nsec: resd 1   
+    .unused4:       resd 1   
+    .unused5:       resd 1  
+endstruc
+
+%define sizeof(x) x %+ _size
+
+
 section .data
     header   db  "P6",10
     len_hed  equ $-header
 
     header2  db  "255",10
     len_hed2 equ $-header2
+	
+    szFile   db  "TEST", 0
+    File_Len equ $-szFile
 
     fin     db 10
     fin_len equ $-fin
 
-    error_message: db "Se ha producido un error"
+    error_message: db "Se ha producido un error",10,0
     error_message_length: equ $-error_message
 
     fds dd 0            ;File descriptor de salida
     len_buffer equ 5242880
+    fde dd 0
 
 section .bss
     msg             resb 1024
     msg_len         resb 28
+    stat            resb sizeof(STAT)
+
+    Org_Break 	    resd 1
 
     nombreArchivoE  resw 2
-    nombreArchivoS resw 2
+    nombreArchivoS  resw 2
 
-    buffer: resb 5242880
+    buffer:         resb 5242880
 
 section .text
     global _start
@@ -83,31 +114,45 @@ _start:
     pop ebx
     mov [nombreArchivoS], ebx
 
+
+;_obtener_tamano_archivo:
+;    mov ebx, szFile
+  
+
 _abrir_archivo_de_entrada:
     mov eax,5
     mov ebx,nombreArchivoE
-    mov ecx,0
+    mov ecx,2
     int 80h
-    xchg eax,esi ; esi ---> eax y eax--->esi
+    test eax,eax
+    jns _error
+    mov [fde], eax
+
+   ; xchg eax,esi ; esi ---> eax y eax--->esi
 
 _leer_archivo_de_entrada:
-    mov ebx,esi
+    mov ebx,[fde]
     mov eax, 3
-    mov ecx,[buffer]
-    mov edx, len_buffer ;En teoria aqui va aritmetica de punteros
+    mov ecx,buffer
+    mov edx, len_buffer
     int 80h
+    js _error
 
 ;    mov ebx, 1
-;    mov ecx, [buffer]
-;    mov edx, eax
+;    mov ecx, buffer
+;    mov edx, len_buffer
 ;    mov eax, 4
 ;    int 80h
 
 _cerrar_archivo_de_entrada:
-    mov ebx, esi
+    mov ebx,[fde] 
     mov eax, 6
     int 80h
-    ;jmp _exit
+
+    ;mov ebx, [Org_Break]
+    ;mov eax, 45
+    ;int 80h
+    jmp _exit
 
 
 _crear_archivo_salida:
