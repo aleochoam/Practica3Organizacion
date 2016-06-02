@@ -38,6 +38,7 @@ section .data
 
     fds dd 0            ;File descriptor de salida
     fde dd 0
+     zero equ 0
 
 section .bss
     msg             resb 1024
@@ -110,9 +111,39 @@ _start:
 
     pop ebx
     mov [nombreArchivoS], ebx
+    
+    mov ecx, 0
 
-_string_binario:     ;     http://www.dreamincode.net/forums/topic/343696-nasmlinux-converting-integer-to-binary-string/
-  
+_string_binario:
+    movzx eax, byte[msg + ecx]
+    ;mov eax, 4
+    cmp eax, 0
+
+_loop1:
+    mov edx, 0
+    cmp eax, 1
+    je  fin_binario
+    mov ebx, 2
+    div ebx
+    cmp edx, 0
+    je  es_cero
+    jmp es_uno
+
+es_cero:
+   mov ebx, 0
+   push ebx
+   jmp _loop1
+
+es_uno:
+   mov ebx, 1
+   push ebx
+   jmp _loop1
+
+fin_binario:
+   mov  ebx, 1
+   push ebx
+   inc  ecx
+   jmp _string_binario
     
 _obtener_tamano_archivo:
     mov eax, 106
