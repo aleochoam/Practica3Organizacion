@@ -112,36 +112,7 @@ _start:
     mov [nombreArchivoS], ebx
 
 _string_binario:     ;     http://www.dreamincode.net/forums/topic/343696-nasmlinux-converting-integer-to-binary-string/
-    mov eax, 89       ;Cosa que quiero volver binario      
-    mov edi, num      
-    call intToBin
-
-    mov edx, eax
-    mov esi, num
-    mov edi, 1
-    mov eax, 4
-    int 80h
-
-    jmp _exit
-
-intToBin:
-    mov ecx, 7
-    mov edx, edi
-
-.NextNibble:
-    shl  al, 1
-    setc byte [edi]
-    add  byte [edi], "0"
-    add  edi, 1
-    sub  ecx, 1
-    jns  .NextNibble
-    
-    mov  byte [edi], 10
-
-    mov eax, edi
-    sub eax, edx
-    inc eax
-    ret   
+  
     
 _obtener_tamano_archivo:
     mov eax, 106
