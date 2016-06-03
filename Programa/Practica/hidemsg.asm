@@ -203,7 +203,7 @@ _leer_archivo_de_entrada:
 
 _strToBin:
     cmp byte[esi], 0
-    je _crear_archivo_salida ;CAMBIAR ---------------------------------
+    je _crear_archivo_salida
 
     mov bl, byte[esi]
     call _charToBin
