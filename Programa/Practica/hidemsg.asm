@@ -82,25 +82,6 @@ _strlen_null:
    pop   ecx            ; restore ecx
    ret                  ; get out
 
-
-_charToBin:
-    mov ecx, 7
-    mov edx, edi
-
-_nextBit:
-    shl bl, 1
-    setc byte[edi]
-    inc edi
-    dec ecx
-    jns _nextBit
-
-    mov byte[edi], 10
-    mov eax, edi
-    sub eax, edx
-    inc eax
-    ret
-
-
 _exit:
     mov eax, 1
     mov ebx, 0
@@ -202,7 +183,7 @@ _leer_archivo_de_entrada:
 _string_binario:
     movzx eax, byte[esi]
     cmp eax, 0
-    je finbin
+    je _finBin
 
 _loop1:
     mov edx, 0
@@ -230,28 +211,15 @@ fin_loop1:
     inc esi
     jmp _string_binario
 
-finbin:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, strBin
-    mov edx, 8
-    int 80h
+_finBin:
+    mov byte [strBin + ecx], 0
+
+    mov ebx, [msg_len]
+    mov eax, 8
+    mul ebx
+    mov [strBin_len], eax
 
     jmp _crear_archivo_salida
-
-;_ConvertirABinario
-;    mov esi, [msg]
-;    mov edi, strBin
-
-;_strToBin:
-;    cmp byte[esi], 0
-;    je _crear_archivo_salida
-;    mov bl, byte[esi]
-;    call _charToBin
-
-;    inc esi
-;    inc edi
-;    jmp _strToBin
 
 _crear_archivo_salida:
     mov eax, 8
@@ -284,14 +252,50 @@ _finDeLinea:
 
 _finHeader:
     mov [tam_header], ebx
-;_ciclo_escribir:
-;    mov eax,
-_cerrar_Archivo_Salida:
+
+    mov edi, 0
+    mov esi, imagen
+    add esi, [tam_header]
+
+_ciclo_escribir:
+    cmp byte[strBin + edi], 0
+    je _finEsconder
+
+    movzx eax, byte [esi]
+    mov ebx, 2
+    mov edx, 0
+    div ebx
+
+    cmp edx, 1
+    je _terminaEnUno
+    jmp _terminaEnCero
+
+_terminaEnUno:
+    cmp byte[strBin + edi], '1'
+    je _cambioHecho
+    and byte[esi], 254
+    jmp _cambioHecho
+
+_terminaEnCero:
+    cmp byte[strBin + edi], '0'
+    je _cambioHecho
+    or byte[esi], 1
+    jmp _cambioHecho
+
+
+_cambioHecho:
+    inc esi
+    inc edi
+    jmp _ciclo_escribir
+
+_finEsconder:
     mov eax, 4
     mov ebx, [fds]
     mov ecx, imagen
-    mov edx, [tam_header]
+    mov edx, [tam_imagen]
     int 80h
+
+_cerrar_Archivo_Salida:
 
     mov eax, 4
     mov ebx, [fds]
