@@ -49,8 +49,8 @@ section .bss
     imagen:         resb 5242880
     tam_imagen      resb 1024
 
-    numBin          resb 1024
-    numBin_len      resb 16
+    strBin          resb 1024
+    strBin_len      resb 16
 
     tam_header      resb 16
 
@@ -196,56 +196,58 @@ _leer_archivo_de_entrada:
     mov ebx,[fde]
     int 80h
 
-    jmp _crear_archivo_salida
-   
-    mov ecx, 0
- 
-;_string_binario:
-;    movzx eax, byte[msg + ecx]
-;    cmp eax, byte 0
-;    je finbin
- 
-;_loop1:
-;    mov edx, 0
-;    cmp eax, 1
-;    je  fin_loop1
-;    mov ebx, 2
-;    div ebx
-;    cmp edx, 0
-;    je  es_cero
-;    jmp es_uno
- 
-;es_cero:
-;    mov ebx, 0
-;    push ebx
-;    jmp _loop1
+    ;jmp _crear_archivo_salida
 
-;es_uno:
-;    mov ebx, 1
-;    push ebx
-;    jmp _loop1
- 
-;fin_loop1:
-;    mov  ebx, 1
-;    push ebx
-;    inc  ecx
-;    jmp _string_binario
-;finbin:
-;    jmp _crear_archivo_salida
-
- Convertir a binario
     mov esi, [msg]
-    mov edi, numBin
+    mov ecx, 0
 
-_strToBin:
-    cmp byte[esi], 0
-    je _crear_archivo_salida
-    mov bl, byte[esi]
-    call _charToBin
+_string_binario:
+    movzx eax, byte[esi]
+    cmp eax, byte 0
+    je finbin
 
-    inc esi
-    inc edi
-    jmp _strToBin
+_loop1:
+    mov edx, 0
+    cmp eax, 1
+    je  fin_loop1
+    mov ebx, 2
+    div ebx
+    cmp edx, 0
+    je  es_cero
+    jmp es_uno
+
+es_cero:
+    mov ebx, 0
+    mov byte [strBin+ecx], '0'
+    jmp _loop1
+
+es_uno:
+    mov ebx, 1
+    mov byte [strBin+ecx], '1'
+    jmp _loop1
+
+fin_loop1:
+    mov  ebx, 1
+    push ebx
+    inc  ecx
+    jmp _string_binario
+
+finbin:
+    jmp _crear_archivo_salida
+
+;_ConvertirABinario
+;    mov esi, [msg]
+;    mov edi, strBin
+
+;_strToBin:
+;    cmp byte[esi], 0
+;    je _crear_archivo_salida
+;    mov bl, byte[esi]
+;    call _charToBin
+
+;    inc esi
+;    inc edi
+;    jmp _strToBin
 
 _crear_archivo_salida:
     mov eax, 8
@@ -279,7 +281,7 @@ _finDeLinea:
 _finHeader:
     mov [tam_header], ebx
 ;_ciclo_escribir:
-;    mov eax, 
+;    mov eax,
 _cerrar_Archivo_Salida:
     mov eax, 4
     mov ebx, [fds]
