@@ -196,14 +196,12 @@ _leer_archivo_de_entrada:
     mov ebx,[fde]
     int 80h
 
-    ;jmp _crear_archivo_salida
-
     mov esi, [msg]
     mov ecx, 0
 
 _string_binario:
     movzx eax, byte[esi]
-    cmp eax, byte 0
+    cmp eax, 0
     je finbin
 
 _loop1:
@@ -217,22 +215,28 @@ _loop1:
     jmp es_uno
 
 es_cero:
-    mov ebx, 0
     mov byte [strBin+ecx], '0'
+    inc ecx
     jmp _loop1
 
 es_uno:
-    mov ebx, 1
     mov byte [strBin+ecx], '1'
+    inc ecx
     jmp _loop1
 
 fin_loop1:
-    mov  ebx, 1
-    push ebx
-    inc  ecx
+    mov byte [strBin +ecx], '1'
+    inc ecx
+    inc esi
     jmp _string_binario
 
 finbin:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, strBin
+    mov edx, 8
+    int 80h
+
     jmp _crear_archivo_salida
 
 ;_ConvertirABinario
