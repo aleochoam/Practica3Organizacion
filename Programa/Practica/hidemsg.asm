@@ -23,19 +23,20 @@ endstruc
 
 
 section .data
-    fin     db 10
-    fin_len equ $-fin
+    fin                  db 10
+    fin_len              equ $-fin
 
-    error_message db "Se ha producido un error",10,0
+    error_message        db "Se ha producido un error",10,0
     error_message_length equ $-error_message
 
-    error_Argumentos db "Error con los argumentos",10,0
-    error_args_len equ $ - error_Argumentos
+    error_Argumentos     db "Error con los argumentos",10,0
+    error_args_len       equ $ - error_Argumentos
+
+    error_Archivo        db "Error abriendo el archivo",10,0
+    error_Archivo_len    equ $ - error_Archivo
 
     fds dd 0            ;File descriptor de salida
     fde dd 0
-
-    NUMARGS equ 6
 
 section .bss
     msg             resb 1024
@@ -98,6 +99,17 @@ _error:
     mov ebx, -1
     int 80h
 
+_errorArchivo:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, error_Archivo
+    mov edx, error_Archivo_len
+    int 80h
+
+    mov eax, 1
+    mov ebx, -1
+    int 80h
+
 _error_Args:
     mov eax, 4
     mov ebx, 1
@@ -109,8 +121,7 @@ _error_Args:
 
 _start:
 
-;Numero de parametros
-    pop ebx
+    pop ebx             ;Numero de parametros
 
     cmp ebx, 6          ;Verifico el numero de argumentos
     jne _error_Args
@@ -163,6 +174,10 @@ _abrir_archivo_de_entrada:
     mov ebx, [nombreArchivoE]
     mov ecx,0
     int 80h
+
+    test eax,eax
+    js _errorArchivo
+
     mov [fde], eax
 
 _leer_archivo_de_entrada:
@@ -196,23 +211,84 @@ _loop1:
     jmp es_uno
 
 es_cero:
-    mov byte [strBin+ecx], '0'
-    inc ecx
+    mov edi, '0'
+    push edi
     jmp _loop1
 
 es_uno:
-    mov byte [strBin+ecx], '1'
-    inc ecx
+    mov edi, '1'
+    push edi
     jmp _loop1
 
 fin_loop1:
-    mov byte [strBin +ecx], '1'
+    mov edi, '1'
+    push edi
+
+    cmp byte[esi], 40
+    jge _unCero
+    ;cmp byte[esi], 32
+    jmp _dosCeros
+    ;jl _dosCeros
+
+_tresCeros:
+    mov edi, '0'
+    push edi
+    mov edi, '0'
+    push edi
+    mov edi, '0'
+    push edi
+    jmp _finLetra
+
+_dosCeros:
+    mov edi, '0'
+    push edi
+    mov edi, '0'
+    push edi
+    jmp _finLetra
+
+_unCero:
+    mov edi, '0'
+    push edi
+    jmp _finLetra
+
+_finLetra:
+    pop edi
+    mov [strBin + ecx], edi
     inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
+    pop edi
+    mov [strBin + ecx], edi
+    inc ecx
+
     inc esi
     jmp _string_binario
 
 _finBin:
-    mov byte [strBin + ecx], 0
+    mov byte [strBin + ecx], byte 10
 
     mov ebx, [msg_len]
     mov eax, 8
@@ -222,6 +298,14 @@ _finBin:
     jmp _crear_archivo_salida
 
 _crear_archivo_salida:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, strBin
+    mov edx, [strBin_len]
+    int 80h
+    jmp _exit
+
     mov eax, 8
     mov ebx, [nombreArchivoS]
     mov ecx, 644O
@@ -232,7 +316,7 @@ _crear_archivo_salida:
 
 _encontrarImagen:
     mov ecx, imagen
-    mov ebx, 0                  ;indicador fin Lde header
+    mov ebx, 0                  ;indicador fin de header
     mov edx, 0                  ;contador fin de linea
 
 _cicloHeader:
