@@ -224,11 +224,11 @@ fin_loop1:
     mov edi, '1'
     push edi
 
-    cmp byte[esi], 40
+    cmp byte[esi], 64
     jge _unCero
-    ;cmp byte[esi], 32
+    cmp byte[esi], 32
+    jl _tresCeros
     jmp _dosCeros
-    ;jl _dosCeros
 
 _tresCeros:
     mov edi, '0'
@@ -299,13 +299,6 @@ _finBin:
 
 _crear_archivo_salida:
 
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, strBin
-    mov edx, [strBin_len]
-    int 80h
-    jmp _exit
-
     mov eax, 8
     mov ebx, [nombreArchivoS]
     mov ecx, 644O
@@ -337,13 +330,14 @@ _finDeLinea:
 _finHeader:
     mov [tam_header], ebx
 
+    mov ecx, [strBin_len]
     mov edi, 0
     mov esi, imagen
     add esi, [tam_header]
 
 _ciclo_escribir:
-    cmp byte[strBin + edi], 0
-    je _finEsconder
+    ;cmp byte[strBin + edi], 10
+    ;je _finEsconder
 
     movzx eax, byte [esi]
     mov ebx, 2
@@ -370,6 +364,10 @@ _terminaEnCero:
 _cambioHecho:
     inc esi
     inc edi
+
+    dec ecx
+    jz _finEsconder
+
     jmp _ciclo_escribir
 
 _finEsconder:
