@@ -29,7 +29,8 @@ section .data
     error_message        db "Se ha producido un error",10,0
     error_message_length equ $-error_message
 
-    error_Argumentos     db "Error con los argumentos",10,0
+    error_Argumentos     db "Error con los argumentos, ingresarlos de \
+la siguiente manera:", 10, "./hidemsg 'mensaje' -f archivo.ppm -o archivo2.ppm",10,0
     error_args_len       equ $ - error_Argumentos
 
     error_Archivo        db "Error abriendo el archivo",10,0
@@ -114,7 +115,7 @@ _error_Args:
     mov eax, 4
     mov ebx, 1
     mov ecx, error_Argumentos
-    mov edx, error_message_length
+    mov edx, error_args_len
     int 80h
 
     mov eax, 1
@@ -296,6 +297,12 @@ _finBin:
     mov eax, 8
     mul ebx
     mov [strBin_len], eax
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, strBin
+    mov edx, [strBin_len]
+    int 80h
 
     jmp _crear_archivo_salida
 
