@@ -116,8 +116,10 @@ _error_Args:
     mov ecx, error_Argumentos
     mov edx, error_message_length
     int 80h
-    jmp _exit
 
+    mov eax, 1
+    mov ebx, -1
+    int 80h
 
 _start:
 
@@ -183,7 +185,7 @@ _abrir_archivo_de_entrada:
 _leer_archivo_de_entrada:
     mov eax, 3
     mov ebx,[fde]
-    mov ecx,imagen
+    mov ecx, imagen
     mov edx, tam_imagen
     int 80h
     js _error
@@ -328,18 +330,19 @@ _finDeLinea:
     jmp _cicloHeader
 
 _finHeader:
+    inc ebx
     mov [tam_header], ebx
 
     mov ecx, [strBin_len]
     mov edi, 0
-    mov esi, imagen
+    mov esi, 0
     add esi, [tam_header]
 
 _ciclo_escribir:
     ;cmp byte[strBin + edi], 10
     ;je _finEsconder
 
-    movzx eax, byte [esi]
+    movzx eax, byte [imagen + esi]
     mov ebx, 2
     mov edx, 0
     div ebx
@@ -351,13 +354,13 @@ _ciclo_escribir:
 _terminaEnUno:
     cmp byte[strBin + edi], '1'
     je _cambioHecho
-    and byte[esi], 254
+    and byte[imagen + esi], 254
     jmp _cambioHecho
 
 _terminaEnCero:
     cmp byte[strBin + edi], '0'
     je _cambioHecho
-    or byte[esi], 1
+    or byte[imagen + esi], 1
     jmp _cambioHecho
 
 
@@ -374,16 +377,24 @@ _finEsconder:
     mov eax, 4
     mov ebx, [fds]
     mov ecx, imagen
-    mov edx, [tam_imagen]
+    mov edx, tam_imagen
     int 80h
+
+    ;mov eax, 4
+    ;mov ebx, 1
+    ;mov ecx, imagen
+    ;mov edx, tam_imagen
+    ;int 80h
+
+    ;jmp _exit
 
 _cerrar_Archivo_Salida:
 
-    mov eax, 4
-    mov ebx, [fds]
-    mov ecx, fin
-    mov edx, fin_len
-    int 80h
+    ;mov eax, 4
+    ;mov ebx, [fds]
+    ;mov ecx, fin
+    ;mov edx, fin_len
+    ;int 80h
 
     mov eax, 6
     mov ebx, [fds]
