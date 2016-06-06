@@ -1,1 +1,0 @@
-http://www.matveev.se/asm/nasm-fops.htm
