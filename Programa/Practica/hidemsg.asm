@@ -36,7 +36,7 @@ section .data
     error_Archivo_len    equ $ - error_Archivo
 
     fds dd 0            ;File descriptor de salida
-    fde dd 0
+    fde dd 0            ;File descriptor de entrada
 
 section .bss
     msg             resb 1024
@@ -308,7 +308,6 @@ _crear_archivo_salida:
 
     mov [fds], eax
 
-
 _encontrarImagen:
     mov ecx, imagen
     mov ebx, 0                  ;indicador fin de header
@@ -333,14 +332,13 @@ _finHeader:
     inc ebx
     mov [tam_header], ebx
 
+_meterElMensaje:
     mov ecx, [strBin_len]
     mov edi, 0
     mov esi, 0
     add esi, [tam_header]
 
 _ciclo_escribir:
-    ;cmp byte[strBin + edi], 10
-    ;je _finEsconder
 
     movzx eax, byte [imagen + esi]
     mov ebx, 2
@@ -380,21 +378,7 @@ _finEsconder:
     mov edx, tam_imagen
     int 80h
 
-    ;mov eax, 4
-    ;mov ebx, 1
-    ;mov ecx, imagen
-    ;mov edx, tam_imagen
-    ;int 80h
-
-    ;jmp _exit
-
 _cerrar_Archivo_Salida:
-
-    ;mov eax, 4
-    ;mov ebx, [fds]
-    ;mov ecx, fin
-    ;mov edx, fin_len
-    ;int 80h
 
     mov eax, 6
     mov ebx, [fds]
