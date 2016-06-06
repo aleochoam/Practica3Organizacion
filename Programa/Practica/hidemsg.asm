@@ -153,7 +153,7 @@ _start:
 ;Obtengo el tamaño de la imagen
 _obtener_tamano_archivo:
     mov eax, 106
-    mov ebx, nombreArchivoE
+    mov ebx, [nombreArchivoE]
     mov ecx, stat
     int 80h
 
@@ -227,6 +227,8 @@ fin_loop1:
     mov edi, '1'
     push edi
 
+    cmp byte[esi], 127
+    jg _finLetra
     cmp byte[esi], 64
     jge _unCero
     cmp byte[esi], 32
@@ -297,14 +299,6 @@ _finBin:
     mov eax, 8
     mul ebx
     mov [strBin_len], eax
-
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, strBin
-    mov edx, [strBin_len]
-    int 80h
-
-    jmp _crear_archivo_salida
 
 _crear_archivo_salida:
 
@@ -382,7 +376,7 @@ _finEsconder:
     mov eax, 4
     mov ebx, [fds]
     mov ecx, imagen
-    mov edx, tam_imagen
+    mov edx, [tam_imagen]
     int 80h
 
 _cerrar_Archivo_Salida:
